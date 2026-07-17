@@ -16,6 +16,8 @@ Curated food-deals aggregator. Learning project for the OpenSpec workflow.
 - Validation is strict and loud: throw a clear, actionable error; never skip bad data.
 - Every behaviour has a test.
 - UK British English in docs and messages.
+- Comments explain only what the code and naming can't (edge cases, workarounds,
+  guaranteed formats, non-obvious domain facts) — never narrate the obvious.
 
 ## Workflow
 - Spec-driven via OpenSpec. Changes live in `openspec/changes/`.

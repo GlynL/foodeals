@@ -1,0 +1,8 @@
+[
+  {
+    "title": "Mystery deal",
+    "discount": "10% off",
+    "location": "https://www.google.com/maps/search/?api=1&query=Somewhere",
+    "days": ["Mon"]
+  }
+]

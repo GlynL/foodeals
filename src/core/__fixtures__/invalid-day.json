@@ -1,0 +1,9 @@
+[
+  {
+    "title": "Confused deal",
+    "venue": "The Time Warp",
+    "discount": "20% off",
+    "location": "https://www.google.com/maps/search/?api=1&query=The+Time+Warp",
+    "days": ["Funday"]
+  }
+]

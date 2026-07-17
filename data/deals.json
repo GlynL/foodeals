@@ -1,0 +1,30 @@
+[
+  {
+    "title": "2-for-1 burgers",
+    "venue": "The Grill House",
+    "discount": "2-for-1 on all burgers",
+    "location": "https://www.google.com/maps/search/?api=1&query=The+Grill+House",
+    "days": ["Mon", "Tue"]
+  },
+  {
+    "title": "Half-price pizza",
+    "venue": "Napoli",
+    "discount": "50% off mains",
+    "location": "https://www.google.com/maps/search/?api=1&query=Napoli+Pizzeria",
+    "days": ["Wed"]
+  },
+  {
+    "title": "Bottomless brunch",
+    "venue": "The Copper Spoon",
+    "discount": "£25 bottomless brunch",
+    "location": "https://www.google.com/maps/search/?api=1&query=The+Copper+Spoon",
+    "days": ["Sat", "Sun"]
+  },
+  {
+    "title": "Free coffee refill",
+    "venue": "Bean There",
+    "discount": "Free refill with any pastry",
+    "location": "https://www.google.com/maps/search/?api=1&query=Bean+There+Cafe",
+    "days": ["Mon", "Tue", "Wed", "Thu", "Fri"]
+  }
+]

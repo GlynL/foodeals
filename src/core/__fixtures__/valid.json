@@ -1,0 +1,23 @@
+[
+  {
+    "title": "2-for-1 burgers",
+    "venue": "The Grill House",
+    "discount": "2-for-1",
+    "location": "https://www.google.com/maps/search/?api=1&query=The+Grill+House",
+    "days": ["Mon", "Wed"]
+  },
+  {
+    "title": "Half-price pizza",
+    "venue": "Napoli",
+    "discount": "50% off",
+    "location": "https://www.google.com/maps/search/?api=1&query=Napoli",
+    "days": ["Fri"]
+  },
+  {
+    "title": "Bottomless brunch",
+    "venue": "The Copper Spoon",
+    "discount": "£25 bottomless",
+    "location": "https://www.google.com/maps/search/?api=1&query=The+Copper+Spoon",
+    "days": ["Sat", "Sun"]
+  }
+]

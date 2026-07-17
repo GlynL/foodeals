@@ -1,0 +1,17 @@
+{
+  "name": "foodeals",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A curated food-deals aggregator (learning project for the OpenSpec workflow).",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}
