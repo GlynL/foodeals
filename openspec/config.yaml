@@ -1,5 +1,16 @@
 schema: spec-driven
 
+context: |
+  Project: foodeals — a curated food-deals aggregator. Deals are hand-maintained
+  by the operator in a flat data file; the app reads them for discovery.
+  Tech stack: TypeScript on Node. No framework yet.
+  Architecture: one core (deal model + logic) kept separate from delivery
+  surfaces. Surfaces (CLI → HTTP API → web) are added as later changes and
+  reuse the core unchanged. Do not couple core logic to any surface.
+  Data: single hand-edited JSON file as source of truth; parse with JSON.parse.
+  Validation: strict and loud — reject malformed input with a clear error,
+  never silently skip.
+
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
