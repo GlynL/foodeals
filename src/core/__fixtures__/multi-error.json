@@ -1,0 +1,16 @@
+[
+  {
+    "titel": "Burgers",
+    "venue": "The Grill House",
+    "discount": "2-for-1",
+    "location": "https://www.google.com/maps/search/?api=1&query=The+Grill+House",
+    "days": ["Mon"]
+  },
+  {
+    "title": "Pizza",
+    "venue": "",
+    "discount": "50% off",
+    "location": "https://www.google.com/maps/search/?api=1&query=Napoli",
+    "days": ["Funday"]
+  }
+]

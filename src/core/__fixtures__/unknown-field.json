@@ -1,0 +1,10 @@
+[
+  {
+    "title": "Extra field deal",
+    "venue": "The Grill House",
+    "discount": "2-for-1",
+    "location": "https://www.google.com/maps/search/?api=1&query=The+Grill+House",
+    "days": ["Mon"],
+    "notes": "this field is not allowed"
+  }
+]

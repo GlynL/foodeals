@@ -44,6 +44,27 @@ describe('loadDeals', () => {
     expect(days).toContain('Mon');
     expect(days).toContain('Sun');
   });
+
+  it('rejects an unknown/mis-typed field, naming it', () => {
+    expect(() => loadDeals(fixture('unknown-field.json'))).toThrow(/notes/);
+  });
+
+  it('reports every problem in one error when multiple entries are invalid', () => {
+    let message = '';
+    try {
+      loadDeals(fixture('multi-error.json'));
+    } catch (err) {
+      message = (err as Error).message;
+    }
+
+    expect(message).toMatch(/titel/); // unknown field on deal 0
+    expect(message).toMatch(/must not be empty/); // empty venue on deal 1
+    expect(message).toMatch(/Funday/); // bad day on deal 1
+    expect(message).toMatch(/Pizza/); // deal 1 located by title
+
+    const problems = message.split('\n').filter((line) => line.trim().startsWith('- '));
+    expect(problems.length).toBeGreaterThan(1);
+  });
 });
 
 describe('listDeals', () => {
