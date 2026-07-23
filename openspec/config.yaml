@@ -6,7 +6,9 @@ context: |
   Tech stack: TypeScript on Node. No framework yet.
   Architecture: one core (deal model + logic) kept separate from delivery
   surfaces. Surfaces (CLI → HTTP API → web) are added as later changes and
-  reuse the core unchanged. Do not couple core logic to any surface.
+  reuse the core unchanged. Do not couple core logic to any surface. The CLI
+  is the first surface (src/cli/); surfaces run from a `tsc` build (dist/),
+  while tests run on vitest with no build.
   Data: single hand-edited JSON file as source of truth; parse with JSON.parse.
   Validation: strict and loud — reject malformed input with a clear error,
   never silently skip.

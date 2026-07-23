@@ -16,7 +16,7 @@ export function run({ list, out, err }: CliIo): number {
   try {
     deals = list();
   } catch (error) {
-    err((error as Error).message);
+    err(error instanceof Error ? error.message : String(error));
     return 1;
   }
 

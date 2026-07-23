@@ -4,14 +4,19 @@
   "private": true,
   "type": "module",
   "description": "A curated food-deals aggregator (learning project for the OpenSpec workflow).",
+  "engines": {
+    "node": ">=22"
+  },
   "bin": {
     "foodeals": "dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "precli": "npm run build",
     "cli": "node dist/cli/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "vitest run -c vitest.e2e.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
