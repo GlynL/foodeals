@@ -4,13 +4,17 @@ Curated food-deals aggregator. Learning project for the OpenSpec workflow.
 
 ## Stack
 - TypeScript on Node. No framework yet.
+- Tests run on vitest with no build. Surfaces run from a `tsc` build
+  (`npm run build` → `dist/`, config in `tsconfig.build.json`); root `tsconfig`
+  stays `noEmit` for `typecheck`.
 
 ## Architecture
 - **Core stays surface-free.** Deal model + load/validate/list logic live in the
   core and must not import CLI/HTTP/web concerns. Surfaces call the core.
 - Data source of truth: a hand-edited JSON file (`data/deals.json`).
 - Surfaces (CLI → HTTP API → web) are added as later changes and reuse the core
-  unchanged.
+  unchanged. The CLI is the first surface, at `src/cli/` (run: `npm run cli`);
+  it imports the core, never the reverse.
 
 ## Conventions
 - Validation is strict and loud: throw a clear, actionable error; never skip bad data.

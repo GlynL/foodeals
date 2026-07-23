@@ -4,7 +4,12 @@
   "private": true,
   "type": "module",
   "description": "A curated food-deals aggregator (learning project for the OpenSpec workflow).",
+  "bin": {
+    "foodeals": "dist/cli/index.js"
+  },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "cli": "node dist/cli/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
