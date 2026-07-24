@@ -34,4 +34,3 @@ and discovery features grown without changing the core.
 
 - Wire `lint`, `format:check`, `typecheck`, `test`, and `test:e2e` into a CI
   workflow (`.github/workflows/ci.yml`) on push/PR to `main` — no CI exists yet.
-- Aggregate the JSON parse error together with schema errors (currently separate).
