@@ -16,11 +16,7 @@ export function buildApp() {
     return { status: 'ok' };
   });
 
-  app.get(
-    '/deals',
-    { schema: { response: { 200: DealsSchema } } },
-    async () => listDeals(),
-  );
+  app.get('/deals', { schema: { response: { 200: DealsSchema } } }, async () => listDeals());
 
   // listDeals() throws a single, detailed message on any bad-data problem
   // (unreadable file, invalid JSON, failed validation) — an ops issue, not a

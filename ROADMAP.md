@@ -7,6 +7,7 @@ The through-line: one surface-free core, with surfaces added on top over time
 and discovery features grown without changing the core.
 
 ## Done
+
 - **deals-catalogue** — deal model + load/validate/list from `data/deals.json`.
 - **zod-deal-validation** — zod schema, reject unknown fields, report all errors.
 - **cli-surface ("A")** — `foodeals` command prints the catalogue via `listDeals()`,
@@ -14,10 +15,14 @@ and discovery features grown without changing the core.
 - **http-api-surface ("B")** — Fastify exposes `GET /deals` and `GET /health`
   over HTTP, reusing `listDeals()` unchanged. Unblocks the deployment pattern
   in `docs/deployment.md`.
+- **Lint tooling** — ESLint (flat config) + Prettier, with the core→surface
+  import boundary enforced via `import-x/no-restricted-paths`. Pre-commit hook
+  (husky + lint-staged) runs both on staged files.
 
 ## Next
 
 ## Later
+
 - **Day-of-week filtering** — "what's on today?" / filter by a given day. First use
   of the `days` field for discovery.
 - **Web surface ("C")** — browse deals in a browser.
@@ -26,6 +31,7 @@ and discovery features grown without changing the core.
 - **More discovery** — filter by venue or area, sorting.
 
 ## Ideas / maybe
-- Enforce the core→surface import boundary with a lint rule (and run it in CI)
-  once the first surface lands, so the separation can't silently regress.
+
+- Wire `lint`, `format:check`, `typecheck`, `test`, and `test:e2e` into a CI
+  workflow (`.github/workflows/ci.yml`) on push/PR to `main` — no CI exists yet.
 - Aggregate the JSON parse error together with schema errors (currently separate).

@@ -33,7 +33,9 @@ describe('GET /deals', () => {
 
   it('responds 500 with a generic body when listDeals() throws', async () => {
     listDeals.mockImplementation(() => {
-      throw new Error('Deals file at /secret/path/data/deals.json is invalid: - index 0 → "venue": must not be empty');
+      throw new Error(
+        'Deals file at /secret/path/data/deals.json is invalid: - index 0 → "venue": must not be empty',
+      );
     });
     const { buildApp } = await import('./app.js');
     const app = buildApp();

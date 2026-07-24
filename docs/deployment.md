@@ -6,7 +6,7 @@ new project is "copy a template, set a subdomain, push".
 
 foodeals is the first project to use this pattern, so it doubles as the proving
 ground. Once it has run end-to-end here, the per-project template can graduate
-into its own GitHub *template repository* for reuse.
+into its own GitHub _template repository_ for reuse.
 
 ## The shape in one paragraph
 
@@ -24,7 +24,7 @@ proxy changes at all.
 This document is design plus a runbook. It intentionally does **not** cover:
 
 - **Giving foodeals an HTTP surface.** foodeals is currently core + a CLI; both
-  run and exit. Traefik needs a container that *stays up* and listens on a port,
+  run and exit. Traefik needs a container that _stays up_ and listens on a port,
   so foodeals is not deployable until it has an HTTP surface. That is the "HTTP
   API surface (B)" item on the [roadmap](../ROADMAP.md) and is its own OpenSpec
   change - not part of this pattern.
@@ -37,14 +37,14 @@ This document is design plus a runbook. It intentionally does **not** cover:
 
 ## Why these choices (decisions log)
 
-| Decision | Choice | Why |
-| --- | --- | --- |
-| Host | Single Hetzner VPS | Best RAM-per-pound; one box hosts many projects on one bill. Builds happen in CI, so the box only *runs* containers and stays small. |
-| Deploy layer | Docker Compose + shared reverse proxy + copy-me template | Transparent primitives, no heavy control plane to maintain. "Easy to add a project" comes from a convention, not a dashboard. |
-| Reverse proxy | Traefik (label auto-discovery) | Each project declares its own route in its own compose file. Adding a project touches nothing central. |
-| Ship code | GitHub Actions -> GHCR -> SSH | Box stays a dumb runner (never builds -> no OOM on a small VPS). Images are versioned. Deploys are explicit (happen when Actions finishes). |
-| DNS | Wildcard `*.glynlewington.com` -> box IP | New project = a subdomain that already resolves. Zero DNS work per project. |
-| App config | Box-local `.env` per project, git-ignored | Dead simple, standard, no extra service. Deploy creds live as GitHub Actions secrets instead. |
+| Decision      | Choice                                                   | Why                                                                                                                                         |
+| ------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Host          | Single Hetzner VPS                                       | Best RAM-per-pound; one box hosts many projects on one bill. Builds happen in CI, so the box only _runs_ containers and stays small.        |
+| Deploy layer  | Docker Compose + shared reverse proxy + copy-me template | Transparent primitives, no heavy control plane to maintain. "Easy to add a project" comes from a convention, not a dashboard.               |
+| Reverse proxy | Traefik (label auto-discovery)                           | Each project declares its own route in its own compose file. Adding a project touches nothing central.                                      |
+| Ship code     | GitHub Actions -> GHCR -> SSH                            | Box stays a dumb runner (never builds -> no OOM on a small VPS). Images are versioned. Deploys are explicit (happen when Actions finishes). |
+| DNS           | Wildcard `*.glynlewington.com` -> box IP                 | New project = a subdomain that already resolves. Zero DNS work per project.                                                                 |
+| App config    | Box-local `.env` per project, git-ignored                | Dead simple, standard, no extra service. Deploy creds live as GitHub Actions secrets instead.                                               |
 
 Escape hatches if a project outgrows the defaults: a managed database (e.g.
 Neon) is just a connection string and works from the Hetzner box unchanged;
@@ -90,21 +90,21 @@ services:
     restart: unless-stopped
     command:
       # Watch Docker; only expose containers that opt in with a label.
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.websecure.address=:443'
       # Send all plain HTTP to HTTPS.
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
+      - '--entrypoints.web.http.redirections.entrypoint.scheme=https'
       # Let's Encrypt via HTTP-01 challenge; one cert per subdomain, on demand.
-      - "--certificatesresolvers.le.acme.email=you@glynlewington.com"
-      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.le.acme.httpchallenge=true"
-      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      - '--certificatesresolvers.le.acme.email=you@glynlewington.com'
+      - '--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json'
+      - '--certificatesresolvers.le.acme.httpchallenge=true'
+      - '--certificatesresolvers.le.acme.httpchallenge.entrypoint=web'
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       # Read-only socket = how Traefik discovers containers and their labels.
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -130,7 +130,7 @@ cd /opt/traefik && docker compose up -d
 
 At your DNS host for `glynlewington.com`, add one record:
 
-- `*.glynlewington.com`  ->  A record  ->  `BOX_IP`
+- `*.glynlewington.com` -> A record -> `BOX_IP`
 
 Keep it **DNS-only** (if using Cloudflare, grey cloud, not orange) so Traefik
 owns TLS directly. The apex `glynlewington.com` is untouched - the wildcard only
@@ -203,16 +203,16 @@ services:
   app:
     image: ghcr.io/glynlewington/foodeals:latest
     restart: unless-stopped
-    env_file: .env            # box-local, git-ignored (see .env.example)
+    env_file: .env # box-local, git-ignored (see .env.example)
     networks:
       - proxy
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.foodeals.rule=Host(`foodeals.glynlewington.com`)"
-      - "traefik.http.routers.foodeals.entrypoints=websecure"
-      - "traefik.http.routers.foodeals.tls.certresolver=le"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.foodeals.rule=Host(`foodeals.glynlewington.com`)'
+      - 'traefik.http.routers.foodeals.entrypoints=websecure'
+      - 'traefik.http.routers.foodeals.tls.certresolver=le'
       # Must match the port the app listens on / the Dockerfile EXPOSE.
-      - "traefik.http.services.foodeals.loadbalancer.server.port=3000"
+      - 'traefik.http.services.foodeals.loadbalancer.server.port=3000'
 
 networks:
   proxy:
@@ -234,7 +234,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write        # allow pushing to GHCR with GITHUB_TOKEN
+      packages: write # allow pushing to GHCR with GITHUB_TOKEN
     steps:
       - uses: actions/checkout@v4
 

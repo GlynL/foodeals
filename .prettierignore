@@ -1,0 +1,6 @@
+dist
+node_modules
+package-lock.json
+.claude
+openspec/changes/archive
+src/core/__fixtures__/malformed.json

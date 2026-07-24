@@ -10,14 +10,18 @@ export function loadDeals(filePath: string = DEFAULT_DEALS_PATH): Deal[] {
   try {
     raw = readFileSync(filePath, 'utf8');
   } catch (err) {
-    throw new Error(`Could not read deals file at ${filePath}: ${(err as Error).message}`);
+    throw new Error(`Could not read deals file at ${filePath}: ${(err as Error).message}`, {
+      cause: err,
+    });
   }
 
   let json: unknown;
   try {
     json = JSON.parse(raw);
   } catch (err) {
-    throw new Error(`Deals file at ${filePath} is not valid JSON: ${(err as Error).message}`);
+    throw new Error(`Deals file at ${filePath} is not valid JSON: ${(err as Error).message}`, {
+      cause: err,
+    });
   }
 
   const result = DealsSchema.safeParse(json);
