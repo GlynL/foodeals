@@ -4,8 +4,8 @@ A curated food-deals aggregator. Deals are hand-maintained in a single JSON file
 and read for discovery. This is a learning project for the OpenSpec workflow.
 
 The project is built as one surface-free **core** (the deal model plus
-load/validate/list logic) with **surfaces** layered on top. The first surface is
-a command-line tool that lists the catalogue.
+load/validate/list logic) with **surfaces** layered on top: a command-line tool
+and an HTTP API, both listing the same catalogue.
 
 ## Prerequisites
 
@@ -49,10 +49,29 @@ An empty catalogue prints `No deals found.` and exits 0. If the data file is
 missing, malformed, or contains an invalid deal, the CLI writes the error to
 standard error and exits non-zero, printing no deals.
 
+## Run the HTTP API
+
+Build once, then start the server:
+
+```bash
+npm run build   # compiles src/ to dist/ via tsconfig.build.json
+npm start        # runs node dist/http/index.js, listens on PORT (default 3000)
+```
+
+Run it from the **project root**, same as the CLI. Two routes are available:
+
+- `GET /deals` - the catalogue as a JSON array, same data the CLI prints.
+- `GET /health` - a liveness check; always `200`, no dependency on the data file.
+
+If the data file is missing, malformed, or contains an invalid deal,
+`GET /deals` responds `500` with a generic JSON error body; the detailed
+error is logged server-side, not returned to the client.
+
 ## Edit the deals
 
 `data/deals.json` is the sole source of truth. Edit it by hand; changes take
-effect the next time the CLI is run. Each deal has this shape:
+effect the next time the CLI is run, or on the next `GET /deals` request if
+the HTTP server is running. Each deal has this shape:
 
 ```json
 {

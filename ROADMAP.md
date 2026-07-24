@@ -11,9 +11,11 @@ and discovery features grown without changing the core.
 - **zod-deal-validation** — zod schema, reject unknown fields, report all errors.
 - **cli-surface ("A")** — `foodeals` command prints the catalogue via `listDeals()`,
   core unchanged. First surface; added the `tsc` build step.
+- **http-api-surface ("B")** — Fastify exposes `GET /deals` and `GET /health`
+  over HTTP, reusing `listDeals()` unchanged. Unblocks the deployment pattern
+  in `docs/deployment.md`.
 
 ## Next
-- **HTTP API surface ("B")** — expose the core over HTTP; reuses `listDeals()`.
 
 ## Later
 - **Day-of-week filtering** — "what's on today?" / filter by a given day. First use

@@ -3,7 +3,7 @@
 Curated food-deals aggregator. Learning project for the OpenSpec workflow.
 
 ## Stack
-- TypeScript on Node. No framework yet.
+- TypeScript on Node. Fastify for the HTTP surface; no other framework.
 - Tests run on vitest with no build. Surfaces run from a `tsc` build
   (`npm run build` → `dist/`, config in `tsconfig.build.json`); root `tsconfig`
   stays `noEmit` for `typecheck`.
@@ -13,8 +13,9 @@ Curated food-deals aggregator. Learning project for the OpenSpec workflow.
   core and must not import CLI/HTTP/web concerns. Surfaces call the core.
 - Data source of truth: a hand-edited JSON file (`data/deals.json`).
 - Surfaces (CLI → HTTP API → web) are added as later changes and reuse the core
-  unchanged. The CLI is the first surface, at `src/cli/` (run: `npm run cli`);
-  it imports the core, never the reverse.
+  unchanged. The CLI is the first surface, at `src/cli/` (run: `npm run cli`).
+  The HTTP API is the second, at `src/http/` (run: `npm start`, listens on
+  `PORT`, default 3000). Both import the core, never the reverse.
 
 ## Conventions
 - Validation is strict and loud: throw a clear, actionable error; never skip bad data.
