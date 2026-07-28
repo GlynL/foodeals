@@ -18,6 +18,8 @@ and discovery features grown without changing the core.
 - **Lint tooling** — ESLint (flat config) + Prettier, with the core→surface
   import boundary enforced via `import-x/no-restricted-paths`. Pre-commit hook
   (husky + lint-staged) runs both on staged files.
+- **Dockerise the app** — `Dockerfile`, `.dockerignore`, `.env.example`, per
+  `docs/deployment.md`'s template. Verified locally with `docker build`/`run`.
 
 ## Next
 
@@ -34,3 +36,12 @@ and discovery features grown without changing the core.
 
 - Wire `lint`, `format:check`, `typecheck`, `test`, and `test:e2e` into a CI
   workflow (`.github/workflows/ci.yml`) on push/PR to `main` — no CI exists yet.
+- Add `docker-compose.yml` and `.github/workflows/deploy.yml` (build → push to
+  GHCR → SSH deploy, per `docs/deployment.md`'s template) once the box is
+  provisioned and the repo secrets (`SSH_HOST`, `SSH_USER`, `SSH_KEY`) exist —
+  no point wiring up routing/deploy for a box that doesn't exist yet.
+
+- Fix silent error logging in the HTTP surface: `buildApp()` (`src/http/app.ts`)
+  builds Fastify with no `logger` option, so `app.log.error()` in the 500
+  handler is currently a no-op — found while docker-testing a broken-data-file
+  500 and seeing nothing in `docker logs`.

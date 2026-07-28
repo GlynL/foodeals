@@ -23,11 +23,6 @@ proxy changes at all.
 
 This document is design plus a runbook. It intentionally does **not** cover:
 
-- **Giving foodeals an HTTP surface.** foodeals is currently core + a CLI; both
-  run and exit. Traefik needs a container that _stays up_ and listens on a port,
-  so foodeals is not deployable until it has an HTTP surface. That is the "HTTP
-  API surface (B)" item on the [roadmap](../ROADMAP.md) and is its own OpenSpec
-  change - not part of this pattern.
 - **Stateful services and backups.** Named volumes and a backup job (e.g.
   scheduled `pg_dump` to object storage) are a deliberate follow-on. The pattern
   is built so state can be added later without rework: keep data in a Docker
@@ -188,7 +183,7 @@ ENV NODE_ENV=production
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
-# The HTTP surface (roadmap item B) will listen here; align with the label port.
+COPY --from=build /app/data ./data
 EXPOSE 3000
 CMD ["node", "dist/http/index.js"]
 ```
@@ -201,7 +196,7 @@ the only place routing lives - no central file to edit.
 ```yaml
 services:
   app:
-    image: ghcr.io/glynlewington/foodeals:latest
+    image: ghcr.io/glynl/foodeals:latest
     restart: unless-stopped
     env_file: .env # box-local, git-ignored (see .env.example)
     networks:
@@ -211,8 +206,9 @@ services:
       - 'traefik.http.routers.foodeals.rule=Host(`foodeals.glynlewington.com`)'
       - 'traefik.http.routers.foodeals.entrypoints=websecure'
       - 'traefik.http.routers.foodeals.tls.certresolver=le'
-      # Must match the port the app listens on / the Dockerfile EXPOSE.
-      - 'traefik.http.services.foodeals.loadbalancer.server.port=3000'
+      # ${PORT} is read from .env (same file the container gets via env_file),
+      # so this stays in sync with whatever port the app actually listens on.
+      - 'traefik.http.services.foodeals.loadbalancer.server.port=${PORT:-3000}'
 
 networks:
   proxy:
@@ -248,7 +244,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/glynlewington/foodeals:latest
+          tags: ghcr.io/glynl/foodeals:latest
 
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1
@@ -307,7 +303,7 @@ For each new project. DNS and the Traefik proxy need **zero** changes.
 1. **Copy the template files** above into the repo. Adjust the project name and
    the `Host(...)` subdomain (e.g. `blog.glynlewington.com`).
 2. **Set the image name** in `docker-compose.yml` and the workflow to
-   `ghcr.io/glynlewington/<project>`.
+   `ghcr.io/glynl/<project>`.
 3. **On the box:** create the project dir and its `.env`:
    ```sh
    mkdir -p /opt/projects/<project>
