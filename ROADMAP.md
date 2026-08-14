@@ -20,6 +20,10 @@ and discovery features grown without changing the core.
   (husky + lint-staged) runs both on staged files.
 - **Dockerise the app** — `Dockerfile`, `.dockerignore`, `.env.example`, per
   `docs/deployment.md`'s template. Verified locally with `docker build`/`run`.
+- **Deploy pipeline** — `docker-compose.yml` (Traefik labels) and
+  `.github/workflows/deploy.yml` (build → push to GHCR → SSH deploy), per
+  `docs/deployment.md`'s templates. Serving at `foodeals.glynlewington.com`;
+  the box setup log lives in `docs/deployment-progress.md`.
 
 ## Next
 
@@ -36,11 +40,12 @@ and discovery features grown without changing the core.
 
 - Wire `lint`, `format:check`, `typecheck`, `test`, and `test:e2e` into a CI
   workflow (`.github/workflows/ci.yml`) on push/PR to `main` — no CI exists yet.
-- Add `docker-compose.yml` and `.github/workflows/deploy.yml` (build → push to
-  GHCR → SSH deploy, per `docs/deployment.md`'s template) once the box is
-  provisioned and the repo secrets (`SSH_HOST`, `SSH_USER`, `SSH_KEY`) exist —
-  no point wiring up routing/deploy for a box that doesn't exist yet.
-
+  Nothing gates the deploy workflow, so a red test still ships.
+- Move `SSH_HOST` / `SSH_USER` / `SSH_KEY` from repository secrets to an
+  `environment: production` in the deploy job, so only that job can read them.
+  Worth doing when `ci.yml` lands, since a second workflow would otherwise
+  inherit access to the deploy key for no reason. Needs the private key to hand
+  (GitHub won't reveal an existing secret), so it means a fresh keypair.
 - Fix silent error logging in the HTTP surface: `buildApp()` (`src/http/app.ts`)
   builds Fastify with no `logger` option, so `app.log.error()` in the 500
   handler is currently a no-op — found while docker-testing a broken-data-file

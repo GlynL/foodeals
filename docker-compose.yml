@@ -1,0 +1,19 @@
+services:
+  app:
+    image: ghcr.io/glynl/foodeals:latest
+    restart: unless-stopped
+    env_file: .env # box-local, git-ignored (see .env.example)
+    networks:
+      - proxy
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.foodeals.rule=Host(`foodeals.glynlewington.com`)'
+      - 'traefik.http.routers.foodeals.entrypoints=websecure'
+      - 'traefik.http.routers.foodeals.tls.certresolver=le'
+      # ${PORT} is read from .env (same file the container gets via env_file),
+      # so this stays in sync with whatever port the app actually listens on.
+      - 'traefik.http.services.foodeals.loadbalancer.server.port=${PORT:-3000}'
+
+networks:
+  proxy:
+    external: true
