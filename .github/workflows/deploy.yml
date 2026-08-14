@@ -33,8 +33,8 @@ jobs:
         with:
           context: .
           push: true
-          # :latest is what the box pulls; the SHA tag is the only way back to a
-          # previous build, since :latest is mutable and keeps no history.
+          # :latest is what the box pulls; the SHA tag makes a build identifiable
+          # and pullable on its own, which :latest can't be.
           tags: |
             ghcr.io/glynl/foodeals:latest
             ghcr.io/glynl/foodeals:${{ github.sha }}
