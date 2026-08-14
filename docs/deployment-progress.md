@@ -5,7 +5,9 @@ the proving ground, so this records what actually happened - including where the
 pattern doc turned out to be wrong or incomplete.
 
 **Status: complete.** Live at `https://foodeals.glynlewington.com`, deploying on
-every push to `main`. Two small box chores remain, listed under "Remaining".
+every push to `main` that touches code. Nothing outstanding on the box; what's
+left is reconciling `docs/deployment.md` with the follow-ups at the end of this
+file.
 
 Last updated: 2026-08-14.
 
