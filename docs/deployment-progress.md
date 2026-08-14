@@ -142,8 +142,19 @@ printf 'TAG=<sha>\n' >> .env   # a 40-char commit SHA from a green run
 docker compose pull && docker compose up -d
 ```
 
-Remove the `TAG` line to return to `latest`. The image is fetched from GHCR, so
-this works even though `docker image prune -f` clears old images off the box.
+**Reverting the commit is the normal rollback**, since it keeps `main` and the box
+in agreement. Pinning `TAG` is for the cases a revert can't cover: you need it
+back in seconds, or the breakage _is_ the build, so reverting yields a commit that
+can't produce an image either. Pin first, revert properly, then unpin.
+
+**Always remove the `TAG` line afterwards.** A pin applies to every later deploy,
+not just one: each push still builds and pushes a new image, then pulls the
+pinned tag instead. The runs stay green while the site never changes, which is a
+horrible thing to diagnose. `grep TAG .env` is the first thing to check if a
+deploy reports success but nothing changes.
+
+The image is fetched from GHCR, so this works even though `docker image prune -f`
+clears old images off the box.
 
 Note the box's compose file is a copy fetched at step 9, so `${TAG}` only works
 once it has been re-fetched:
