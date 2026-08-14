@@ -43,6 +43,11 @@ and discovery features grown without changing the core.
   Nothing gates the deploy workflow, so a red test still ships.
 - Add `paths-ignore` to `deploy.yml` for `**.md` and `docs/**`, so a docs-only
   commit doesn't rebuild the image and restart the container.
+- Have the deploy job create `/opt/projects/foodeals` and write its `.env` from a
+  repository variable (`vars.PORT`), passed via `ssh-action`'s `envs:`. Removes
+  the one manual per-project box step and makes the droplet rebuildable without
+  reconstructing config by hand. Worth proving here before folding it into
+  `docs/deployment.md` as the default.
 - Move `SSH_HOST` / `SSH_USER` / `SSH_KEY` from repository secrets to an
   `environment: production` in the deploy job, so only that job can read them.
   Worth doing when `ci.yml` lands, since a second workflow would otherwise

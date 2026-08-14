@@ -195,3 +195,18 @@ was actually built:
   `/opt/traefik` so one `ls` shows everything deployed, and staying out of
   `/root` means the eventual non-root `deploy` user is a `chown` rather than a
   path migration across every repo.
+- **Move project config into GitHub variables and secrets, and have the deploy
+  job write the `.env` itself.** Today the box holds the only copy of every
+  project's config, so creating the directory by hand is a required step per
+  project (checklist step 3) and a droplet rebuild means recreating each one from
+  memory. Compose files are recoverable from their repos; the `.env` files are
+  not. Instead: non-sensitive values as repository **variables** (`vars.PORT`),
+  anything sensitive as **secrets**, with the deploy step doing
+  `mkdir -p`, fetching the compose file, and writing `.env` under `umask 077`.
+  Adding a project then needs nothing done on the box at all.
+  - Pass them via `ssh-action`'s `envs:` input rather than interpolating them
+    into `script:`, so values don't sit in the remote command line.
+  - Trade-offs to state plainly: GitHub becomes the source of truth for all
+    project config, so the Actions secret store is worth as much as the box; and
+    every deploy overwrites `.env`, so a hand-edit on the box disappears at the
+    next push without warning.
