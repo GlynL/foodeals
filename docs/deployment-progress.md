@@ -4,23 +4,22 @@ Working log for the first run of the pattern in `docs/deployment.md`. foodeals i
 the proving ground, so this records what actually happened - including where the
 pattern doc turned out to be wrong or incomplete.
 
-**Status: step 8 of 10.** The box is provisioned and serving and the deploy key
-is in place; what remains is committing the deploy files, the box project
-directory, and the first deploy.
+**Status: step 10 of 10.** Everything is in place either side of the wire; what
+remains is one green deploy run and the verification that follows it.
 
 Last updated: 2026-08-14.
 
 ## Decisions taken during setup
 
-| Decision     | Choice                       | Why                                                                                                                |
-| ------------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Host         | DigitalOcean, not Hetzner    | Hetzner had no CX stock and no CAX stock; CPX started at EUR 11.99. DO also has a London region.                   |
-| Droplet size | $6/mo, 1 vCPU / 1 GB / 25 GB | Box only runs containers (builds happen in CI). Resizing RAM/CPU upward later is reversible on DO.                 |
-| Database     | Not on the box               | Postgres would take 150-250 MB of the ~570 MB free. Use a managed provider (Neon etc.) per the doc's escape hatch. |
-| Swap         | 1 GB swapfile added          | Not in the pattern doc, which assumed a 4 GB box. Cheap insurance against the OOM killer on 1 GB.                  |
-| CI gating    | None for now                 | Deploy workflow only. `ci.yml` stays on ROADMAP.                                                                   |
-| `SSH_USER`   | `root`                       | Simplest. Trade-off: Actions secrets compromise = box compromise. A non-root `deploy` user is the tighter option.  |
-| GHCR access  | Public package, no box login | Keeps credentials off the box. The image holds no secrets. Cost: the first deploy fails at `pull` (see step 10).   |
+| Decision     | Choice                       | Why                                                                                                                                                                |
+| ------------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Host         | DigitalOcean, not Hetzner    | Hetzner had no CX stock and no CAX stock; CPX started at EUR 11.99. DO also has a London region.                                                                   |
+| Droplet size | $6/mo, 1 vCPU / 1 GB / 25 GB | Box only runs containers (builds happen in CI). Resizing RAM/CPU upward later is reversible on DO.                                                                 |
+| Database     | Not on the box               | Postgres would take 150-250 MB of the ~570 MB free. Use a managed provider (Neon etc.) per the doc's escape hatch.                                                 |
+| Swap         | 1 GB swapfile added          | Not in the pattern doc, which assumed a 4 GB box. Cheap insurance against the OOM killer on 1 GB.                                                                  |
+| CI gating    | None for now                 | Deploy workflow only. `ci.yml` stays on ROADMAP.                                                                                                                   |
+| `SSH_USER`   | `root`                       | Simplest. Trade-off: Actions secrets compromise = box compromise. A non-root `deploy` user is the tighter option.                                                  |
+| GHCR access  | Public package, no box login | Keeps credentials off the box; the image holds no secrets. Came free: a package pushed with `GITHUB_TOKEN` inherits the repo's visibility, and the repo is public. |
 
 ## Environment constraints (work laptop)
 
@@ -73,51 +72,45 @@ These shaped how the setup was done and will apply again next session.
   - The private key is only needed by Actions dialling in, never by the box, so
     it gets deleted from the box (see step 10). `authorized_keys` holds the
     public half and is what makes the match.
+- **Step 8 - deployment files committed.** `docker-compose.yml` and
+  `.github/workflows/deploy.yml` match `docs/deployment.md`'s templates (image
+  `ghcr.io/glynl/foodeals:latest`, host `foodeals.glynlewington.com`). Pushing
+  fired run 1, which failed as expected: `/opt/projects/foodeals` didn't exist
+  yet. Worth doing in that order, because step 9's `curl` route needs the compose
+  file to be on `main` first, and that beats pasting it into the console.
+- **Step 9 - box project directory.** `/opt/projects/foodeals` holding the
+  compose file and a `.env` of `PORT=3000`. CI never copies these; the deploy job
+  only runs `docker compose pull && up -d` in that directory, so both must
+  already be on the box. Fetched rather than pasted, so the console couldn't
+  mangle it:
+  ```sh
+  mkdir -p /opt/projects/foodeals && cd /opt/projects/foodeals
+  curl -fsSL -o docker-compose.yml \
+    https://raw.githubusercontent.com/GlynL/foodeals/main/docker-compose.yml
+  printf 'PORT=3000\n' > .env
+  chmod 600 .env          # /opt is 755, so .env is world-readable otherwise
+  docker compose config   # confirms the fetch is intact and PORT interpolated
+  ```
+  `raw.githubusercontent.com` only works because the repo is public. For a
+  private repo, paste the file and verify with `docker compose config`.
 
 ## Remaining
 
-### Step 8 - commit and push the deployment files
-
-`docker-compose.yml` and `.github/workflows/deploy.yml` match
-`docs/deployment.md`'s templates verbatim (image `ghcr.io/glynl/foodeals:latest`,
-host `foodeals.glynlewington.com`). `ROADMAP.md` moves them out of
-"Ideas / maybe" into "Done" in the same commit.
-
-Pushing fires the deploy workflow immediately, and **run 1 is expected to fail**
-for two reasons at once: `/opt/projects/foodeals` doesn't exist yet (step 9) and
-the GHCR package is private (step 10). Push anyway - step 9's `curl` route needs
-the compose file to be on `main` first, and that beats pasting it into the
-console.
-
-### Step 9 - box project directory
-
-CI never copies these; the deploy job only runs `docker compose pull && up -d`
-in that directory, so both files must already exist on the box.
-
-Fetch the compose file rather than pasting it - `curl` can't be mangled by the
-browser console, and the file is already on `main` after step 8:
-
-```sh
-mkdir -p /opt/projects/foodeals && cd /opt/projects/foodeals
-curl -fsSL -o docker-compose.yml \
-  https://raw.githubusercontent.com/GlynL/foodeals/main/docker-compose.yml
-printf 'PORT=3000\n' > .env
-docker compose config   # proves the paste/fetch is intact and PORT interpolated
-```
-
-`raw.githubusercontent.com` only works for a public repo. If the repo is
-private, paste the file instead and verify it with `docker compose config`.
-
 ### Step 10 - first deploy
 
-The build and GHCR push succeed on run 1; only `Deploy over SSH` fails. A new
-GHCR package is private by default, and it doesn't exist until that first build
-pushes it, so it can't be made public in advance.
+Run 1's build and GHCR push succeeded; only `Deploy over SSH` failed, on the
+missing directory that step 9 creates. **No GHCR work was needed**: the pattern
+doc says packages are private by default, but one pushed with `GITHUB_TOKEN`
+inherits the repo's visibility, and this repo is public. Verified anonymously:
 
-1. Make the package public: GitHub -> your profile -> Packages -> `foodeals` ->
-   Package settings -> Change visibility -> Public.
-2. Re-run the failed job from the Actions run page. No new commit needed, and by
-   now step 9 has created the directory the job `cd`s into.
+```sh
+TOKEN=$(curl -sS "https://ghcr.io/token?scope=repository:glynl/foodeals:pull&service=ghcr.io" \
+  | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
+curl -sS -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $TOKEN" \
+  https://ghcr.io/v2/glynl/foodeals/manifests/latest   # 200 = public
+```
+
+So run 2 just needs a push, which also carries the `set -e` fix below.
 
 Then visit `https://foodeals.glynlewington.com`. Traefik requests the
 certificate on first request to that hostname.
@@ -170,7 +163,24 @@ was actually built:
 - Consider adding the "verify the pasted file" advice above - it cost the best
   part of an hour here. Better still, tell people to `curl` the compose file
   from the repo instead of pasting it (see step 9).
-- Step 7 ("GHCR pull access") reads as a one-time box setup step, but the
-  public-package route can't be done before the first push: the package doesn't
-  exist until the first build creates it. Say so, and say that the first deploy
-  run therefore fails at `pull` unless the box logs in with a PAT up front.
+- Step 7 ("GHCR pull access") says "by default GHCR packages are private". Not
+  true for the path this pattern uses: a package pushed with `GITHUB_TOKEN` from
+  a public repo inherits the repo's visibility and is public immediately, so the
+  whole step is a no-op here. It only applies to private repos, and the doc
+  should say which case is which - the `docker login` advice is right, the
+  "by default" framing sends you looking for a problem you don't have.
+- The "add a new project" checklist should `chmod 600 .env` after writing it.
+  `/opt` is `755`, so a project `.env` is world-readable by default. Harmless
+  while `.env` is only `PORT` and root is the sole account, but the pattern is
+  meant for projects whose `.env` carries a database URL or an API key, and the
+  permissions are easier to get right at creation than to remember to fix later.
+- The `deploy.yml` template's `script:` block needs `set -e`, or the `cd` needs
+  `|| exit 1`. Confirmed on the first run here: `cd` failed on a missing
+  directory and `docker compose pull` / `up -d` both ran regardless. Harmless
+  only because no compose file happened to sit in `/root` - otherwise it would
+  deploy the wrong stack, and could report success doing it.
+- Worth a sentence on why `/opt/projects/<project>`, since the path is a
+  contract between each repo's workflow and the box: it sits alongside
+  `/opt/traefik` so one `ls` shows everything deployed, and staying out of
+  `/root` means the eventual non-root `deploy` user is a `chown` rather than a
+  path migration across every repo.

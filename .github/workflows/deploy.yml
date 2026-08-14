@@ -31,6 +31,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -e
             cd /opt/projects/foodeals
             docker compose pull
             docker compose up -d
