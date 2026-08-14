@@ -42,6 +42,16 @@ and discovery features grown without changing the core.
 - Wire `lint`, `format:check`, `typecheck`, `test`, and `test:e2e` into a CI
   workflow (`.github/workflows/ci.yml`) on push/PR to `main` — no CI exists yet.
   Nothing gates the deploy workflow, so a red test still ships.
+- Tag images with `${{ github.sha }}` as well as `:latest`, so a bad deploy can be
+  rolled back. `:latest` is mutable and the previous image keeps no name, so there
+  is currently no way to ask for "the one before" — recovery means re-pushing the
+  old code. With a SHA tag, pinning it in the box's `.env` is enough.
+- Add `docker image prune -f` after `up -d` in the deploy script. Every deploy
+  leaves the previous `:latest` dangling, and nothing removes it, so a 25 GB disk
+  fills slowly and invisibly until some later deploy fails for an unrelated-looking
+  reason. Check with `docker system df` (see `docs/deployment-progress.md`).
+  Use plain `prune -f`, not `-a`, which would also delete the untagged-but-wanted
+  image the rollback above depends on.
 - Have the deploy job create `/opt/projects/foodeals` and write its `.env` from a
   repository variable (`vars.PORT`), passed via `ssh-action`'s `envs:`. Removes
   the one manual per-project box step and makes the droplet rebuildable without
