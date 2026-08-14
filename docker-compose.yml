@@ -1,6 +1,7 @@
 services:
   app:
-    image: ghcr.io/glynl/foodeals:latest
+    # Rolling back = set TAG to a commit SHA in the box's .env and redeploy.
+    image: ghcr.io/glynl/foodeals:${TAG:-latest}
     restart: unless-stopped
     env_file: .env # box-local, git-ignored (see .env.example)
     networks:

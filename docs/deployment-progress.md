@@ -131,6 +131,28 @@ These shaped how the setup was done and will apply again next session.
   curl -sS "https://api.github.com/repos/GlynL/foodeals/actions/runs?per_page=1"
   ```
 
+## Rolling back
+
+Every build is also tagged with its commit SHA, and the compose file resolves
+`${TAG:-latest}`, so on the box:
+
+```sh
+cd /opt/projects/foodeals
+printf 'TAG=<sha>\n' >> .env   # a 40-char commit SHA from a green run
+docker compose pull && docker compose up -d
+```
+
+Remove the `TAG` line to return to `latest`. The image is fetched from GHCR, so
+this works even though `docker image prune -f` clears old images off the box.
+
+Note the box's compose file is a copy fetched at step 9, so `${TAG}` only works
+once it has been re-fetched:
+
+```sh
+curl -fsSL -o docker-compose.yml \
+  https://raw.githubusercontent.com/GlynL/foodeals/main/docker-compose.yml
+```
+
 ## Gotchas hit (worth keeping)
 
 - **The DO browser console mangles pasted text.** Three separate characters were
@@ -201,14 +223,17 @@ was actually built:
   while `.env` is only `PORT` and root is the sole account, but the pattern is
   meant for projects whose `.env` carries a database URL or an API key, and the
   permissions are easier to get right at creation than to remember to fix later.
-- The template tags only `:latest`, which leaves the pattern with no rollback.
-  The previous image keeps no name, so recovering from a bad deploy means
-  re-pushing old code. Tagging `${{ github.sha }}` alongside makes it a one-line
-  change on the box instead.
-- The template never prunes, so every deploy on every project leaves a dangling
-  image on a shared box. `docker image prune -f` after `up -d`. This compounds
-  across projects, which makes it more the pattern doc's problem than any one
-  repo's: check with `docker system df`, reading `RECLAIMABLE` against `SIZE`.
+- The template tags only `:latest`, which leaves the pattern with no rollback:
+  the previous image keeps no name, so recovering from a bad deploy means
+  re-pushing old code. Done in foodeals - the workflow also tags
+  `${{ github.sha }}`, and the compose file reads `${TAG:-latest}` so rolling back
+  is a `.env` edit. Fold both into the template.
+- The template never prunes, so every deploy leaves a dangling image, and on a
+  shared box that compounds across every project. Done in foodeals
+  (`docker image prune -f` after `up -d`); belongs in the template. Check with
+  `docker system df`, reading `RECLAIMABLE` against `SIZE`. Plain `prune -f`, not
+  `-a`: on a shared box `-a` removes any image no _running_ container uses, which
+  includes other projects' images while they happen to be stopped.
 - The `deploy.yml` template needs `concurrency` and `paths-ignore`. Without them
   any two pushes close together race on the same box directory, which is how the
   container-name conflict above happened. Both are cheap and belong in the

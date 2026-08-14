@@ -33,7 +33,11 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/glynl/foodeals:latest
+          # :latest is what the box pulls; the SHA tag is the only way back to a
+          # previous build, since :latest is mutable and keeps no history.
+          tags: |
+            ghcr.io/glynl/foodeals:latest
+            ghcr.io/glynl/foodeals:${{ github.sha }}
 
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1
@@ -46,3 +50,5 @@ jobs:
             cd /opt/projects/foodeals
             docker compose pull
             docker compose up -d
+            # The image the previous deploy was running is now untagged.
+            docker image prune -f
