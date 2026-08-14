@@ -137,9 +137,12 @@ These shaped how the setup was done and will apply again next session.
 `:latest`, the box pulls it. That's the whole procedure, and it leaves `main` and
 the box in agreement.
 
-The compose file briefly interpolated `${TAG:-latest}` so a rollback could be a
-`.env` pin instead. Removed, because the cases it covered turn out to be nearly
-empty:
+Two things were built for rollback and then removed, because neither survived
+being asked what it was actually for. The workflow briefly pushed a
+`${{ github.sha }}` tag alongside `:latest`, and the compose file briefly
+interpolated `${TAG:-latest}` so a rollback could be a `.env` pin.
+
+The pin went first. The cases it covered turn out to be nearly empty:
 
 - If the build fails, nothing was pushed, so `:latest` is still the last good
   image and the box was never affected.
@@ -155,8 +158,19 @@ push builds and pushes a new image, then pulls the pinned tag instead, so runs
 stay green while the site never changes. Not worth carrying a silent-failure mode
 to save an edit in an emergency.
 
-The per-commit SHA tags stay, and are still worth having: they identify what is
-running, and let a specific build be pulled locally to reproduce a bug.
+The SHA tag went with it. Its remaining justifications didn't hold either:
+
+- "Identifies what is running" - not really. The container reports
+  `:latest`, so getting to a commit means matching digests against the registry.
+  A build label or a field on `/health` is the tool for that.
+- "Lets a specific build be pulled to reproduce a bug" - real, but
+  `git checkout <sha> && docker build` covers it unless the bug is specific to how
+  CI builds.
+
+Immutable tags earn their keep when deploys _reference_ them. This pattern deploys
+`:latest` by design, so tagging per commit paid the cost - a GHCR package version
+per commit, forever, with an eventual cleanup chore - for nothing. Add it back the
+day something reads it.
 
 ## Gotchas hit (worth keeping)
 
@@ -228,11 +242,11 @@ was actually built:
   while `.env` is only `PORT` and root is the sole account, but the pattern is
   meant for projects whose `.env` carries a database URL or an API key, and the
   permissions are easier to get right at creation than to remember to fix later.
-- The template tags only `:latest`, so nothing identifies which build is running
-  and no specific build can be pulled to reproduce a bug. Done in foodeals - the
-  workflow also tags `${{ github.sha }}`. Worth folding in. Note rollback is _not_
-  the reason: `git revert` and push covers that, since the reverted build becomes
-  `:latest` (see "Rolling back").
+- The template tags only `:latest`, and that is fine - resist "adding immutable
+  tags for rollback", which was tried here and removed. `git revert` and push is
+  the rollback, because the reverted build becomes `:latest`. See "Rolling back"
+  for why the alternatives didn't hold up; worth a line in the doc so the next
+  person doesn't rebuild them.
 - The template never prunes, so every deploy leaves a dangling image, and on a
   shared box that compounds across every project. Done in foodeals
   (`docker image prune -f` after `up -d`); belongs in the template. Check with

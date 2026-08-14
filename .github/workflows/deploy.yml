@@ -33,11 +33,7 @@ jobs:
         with:
           context: .
           push: true
-          # :latest is what the box pulls; the SHA tag makes a build identifiable
-          # and pullable on its own, which :latest can't be.
-          tags: |
-            ghcr.io/glynl/foodeals:latest
-            ghcr.io/glynl/foodeals:${{ github.sha }}
+          tags: ghcr.io/glynl/foodeals:latest
 
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1

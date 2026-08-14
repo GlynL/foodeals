@@ -25,7 +25,7 @@ and discovery features grown without changing the core.
   `docs/deployment.md`'s templates. Serving at `foodeals.glynlewington.com`;
   the box setup log lives in `docs/deployment-progress.md`. Deploys are
   serialised (`concurrency`), skipped for docs-only pushes (`paths-ignore`),
-  tagged by commit SHA as well as `:latest`, and prune dangling images afterwards.
+  and prune dangling images afterwards.
 
 ## Next
 
