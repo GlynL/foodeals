@@ -158,9 +158,24 @@ when step 9 was pasted, so it's still `644`).
   would have shown a warning. It resolves itself - retry before investigating.
   The useful part: a plain `curl` succeeding is itself proof the certificate is
   trusted, since curl rejects an untrusted chain by default.
-- **Every push to `main` redeploys, including docs-only commits.** `deploy.yml`
-  has no `paths-ignore`, so editing this file rebuilds the image and restarts the
-  container. Harmless but wasteful.
+- **Concurrent deploy runs strand a half-renamed container.** Two docs commits
+  pushed minutes apart gave two overlapping runs, and the second failed with
+  `Conflict. The container name "/<short-id>_foodeals-app-1" is already in use`.
+  Compose recreates by renaming the old container to `<short-id>_<name>`, creating
+  the replacement, then deleting the renamed one; two runs doing that at once
+  makes the other one collide on the intermediate name. **Usually nothing needs
+  fixing**: the run that wins the race finishes its recreate, releases that
+  intermediate name and ends up correctly named, so the loser's error is noise.
+  Here the container the error blamed (`4295f7b2a9d6`) was the winner's, observed
+  mid-rename, and was serving happily as `foodeals-app-1` minutes later. Check
+  `docker ps -a --filter name=<project>` before touching anything - `docker ps`
+  and a bare `docker compose ps` both hide `Created` containers, so use `-a`. Only
+  a lingering `<short-id>_<name>` container needs `docker rm -f <id>`; reaching
+  for `docker compose down` costs downtime for nothing. Fixed at the source:
+  `concurrency: {group, cancel-in-progress: false}` in
+  `deploy.yml`, plus `paths-ignore` so docs-only pushes don't deploy at all.
+  `cancel-in-progress: false` matters - cancelling a run mid-recreate strands a
+  container the same way.
 
 ## Follow-ups for `docs/deployment.md`
 
@@ -185,6 +200,10 @@ was actually built:
   while `.env` is only `PORT` and root is the sole account, but the pattern is
   meant for projects whose `.env` carries a database URL or an API key, and the
   permissions are easier to get right at creation than to remember to fix later.
+- The `deploy.yml` template needs `concurrency` and `paths-ignore`. Without them
+  any two pushes close together race on the same box directory, which is how the
+  container-name conflict above happened. Both are cheap and belong in the
+  template rather than being rediscovered per project.
 - The `deploy.yml` template's `script:` block needs `set -e`, or the `cd` needs
   `|| exit 1`. Confirmed on the first run here: `cd` failed on a missing
   directory and `docker compose pull` / `up -d` both ran regardless. Harmless

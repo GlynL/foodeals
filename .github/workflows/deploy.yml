@@ -2,6 +2,17 @@ name: deploy
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'openspec/**'
+
+# Queue deploys rather than overlap them: two concurrent `compose up -d` runs in
+# the same project directory strand a half-renamed container. Cancelling mid-run
+# does the same, hence cancel-in-progress: false.
+concurrency:
+  group: deploy-foodeals
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:

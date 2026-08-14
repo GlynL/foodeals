@@ -23,7 +23,8 @@ and discovery features grown without changing the core.
 - **Deploy pipeline** — `docker-compose.yml` (Traefik labels) and
   `.github/workflows/deploy.yml` (build → push to GHCR → SSH deploy), per
   `docs/deployment.md`'s templates. Serving at `foodeals.glynlewington.com`;
-  the box setup log lives in `docs/deployment-progress.md`.
+  the box setup log lives in `docs/deployment-progress.md`. Deploys are
+  serialised (`concurrency`) and skipped for docs-only pushes (`paths-ignore`).
 
 ## Next
 
@@ -41,8 +42,6 @@ and discovery features grown without changing the core.
 - Wire `lint`, `format:check`, `typecheck`, `test`, and `test:e2e` into a CI
   workflow (`.github/workflows/ci.yml`) on push/PR to `main` — no CI exists yet.
   Nothing gates the deploy workflow, so a red test still ships.
-- Add `paths-ignore` to `deploy.yml` for `**.md` and `docs/**`, so a docs-only
-  commit doesn't rebuild the image and restart the container.
 - Have the deploy job create `/opt/projects/foodeals` and write its `.env` from a
   repository variable (`vars.PORT`), passed via `ssh-action`'s `envs:`. Removes
   the one manual per-project box step and makes the droplet rebuildable without
