@@ -4,8 +4,8 @@ Working log for the first run of the pattern in `docs/deployment.md`. foodeals i
 the proving ground, so this records what actually happened - including where the
 pattern doc turned out to be wrong or incomplete.
 
-**Status: step 10 of 10.** Everything is in place either side of the wire; what
-remains is one green deploy run and the verification that follows it.
+**Status: complete.** Live at `https://foodeals.glynlewington.com`, deploying on
+every push to `main`. Two small box chores remain, listed under "Remaining".
 
 Last updated: 2026-08-14.
 
@@ -83,6 +83,7 @@ These shaped how the setup was done and will apply again next session.
   only runs `docker compose pull && up -d` in that directory, so both must
   already be on the box. Fetched rather than pasted, so the console couldn't
   mangle it:
+
   ```sh
   mkdir -p /opt/projects/foodeals && cd /opt/projects/foodeals
   curl -fsSL -o docker-compose.yml \
@@ -91,42 +92,43 @@ These shaped how the setup was done and will apply again next session.
   chmod 600 .env          # /opt is 755, so .env is world-readable otherwise
   docker compose config   # confirms the fetch is intact and PORT interpolated
   ```
+
   `raw.githubusercontent.com` only works because the repo is public. For a
   private repo, paste the file and verify with `docker compose config`.
 
+- **Step 10 - first deploy. Live.** Run 2 (the `set -e` commit) went green end to
+  end. **No GHCR work was needed**: the pattern doc says packages are private by
+  default, but one pushed with `GITHUB_TOKEN` inherits the repo's visibility, and
+  this repo is public. Verified by an anonymous pull:
+  ```sh
+  TOKEN=$(curl -sS "https://ghcr.io/token?scope=repository:glynl/foodeals:pull&service=ghcr.io" \
+    | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
+  curl -sS -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $TOKEN" \
+    https://ghcr.io/v2/glynl/foodeals/manifests/latest   # 200 = public
+  ```
+  Verified live at `https://foodeals.glynlewington.com`: `GET /health` returns
+  `{"status":"ok"}`, `GET /deals` returns all four deals, HTTP redirects `308` to
+  HTTPS, and the certificate is `issuer=C=US, O=Let's Encrypt, CN=YR2` for
+  `CN=foodeals.glynlewington.com`, valid 14 Aug - 12 Nov 2026.
+
 ## Remaining
 
-### Step 10 - first deploy
+### Delete the deploy key from the box
 
-Run 1's build and GHCR push succeeded; only `Deploy over SSH` failed, on the
-missing directory that step 9 creates. **No GHCR work was needed**: the pattern
-doc says packages are private by default, but one pushed with `GITHUB_TOKEN`
-inherits the repo's visibility, and this repo is public. Verified anonymously:
-
-```sh
-TOKEN=$(curl -sS "https://ghcr.io/token?scope=repository:glynl/foodeals:pull&service=ghcr.io" \
-  | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
-curl -sS -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $TOKEN" \
-  https://ghcr.io/v2/glynl/foodeals/manifests/latest   # 200 = public
-```
-
-So run 2 just needs a push, which also carries the `set -e` fix below.
-
-Then visit `https://foodeals.glynlewington.com`. Traefik requests the
-certificate on first request to that hostname.
-
-Verify: `GET /health` and `GET /deals` both respond, and the certificate is a
-real Let's Encrypt one.
-
-Only once that's green, remove the private key from the box:
+Now that a deploy has verifiably worked:
 
 ```sh
 rm -f ~/.ssh/deploy_key ~/.ssh/deploy_key.pub
 ```
 
-Deleting it earlier is a trap: GitHub secrets are write-only, so if the pasted
+Doing it earlier is a trap: GitHub secrets are write-only, so if the pasted
 `SSH_KEY` turns out to be truncated there's nothing left to compare against and
-the only fix is a fresh keypair.
+the only fix is a fresh keypair. The box keeps the **public** half in
+`~/.ssh/authorized_keys`, which is what actually verifies Actions' key; it never
+needs the private half.
+
+Also outstanding: `chmod 600 /opt/projects/foodeals/.env` (the line was dropped
+when step 9 was pasted, so it's still `644`).
 
 ## Gotchas hit (worth keeping)
 
@@ -150,6 +152,15 @@ the only fix is a fresh keypair.
   Worth checking explicitly rather than trusting a clean startup.
 - Traefik's flag parser is case-insensitive, so `entrypoint` vs `entryPoint`
   in the redirection flags makes no difference. The pattern doc is correct here.
+- **Traefik serves its own self-signed certificate while ACME is still issuing.**
+  For about a minute after the first deploy, `curl` failed with
+  `SSL certificate problem: unable to get local issuer certificate` and a browser
+  would have shown a warning. It resolves itself - retry before investigating.
+  The useful part: a plain `curl` succeeding is itself proof the certificate is
+  trusted, since curl rejects an untrusted chain by default.
+- **Every push to `main` redeploys, including docs-only commits.** `deploy.yml`
+  has no `paths-ignore`, so editing this file rebuilds the image and restarts the
+  container. Harmless but wasteful.
 
 ## Follow-ups for `docs/deployment.md`
 

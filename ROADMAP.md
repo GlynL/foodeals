@@ -41,6 +41,8 @@ and discovery features grown without changing the core.
 - Wire `lint`, `format:check`, `typecheck`, `test`, and `test:e2e` into a CI
   workflow (`.github/workflows/ci.yml`) on push/PR to `main` — no CI exists yet.
   Nothing gates the deploy workflow, so a red test still ships.
+- Add `paths-ignore` to `deploy.yml` for `**.md` and `docs/**`, so a docs-only
+  commit doesn't rebuild the image and restart the container.
 - Move `SSH_HOST` / `SSH_USER` / `SSH_KEY` from repository secrets to an
   `environment: production` in the deploy job, so only that job can read them.
   Worth doing when `ci.yml` lands, since a second workflow would otherwise
