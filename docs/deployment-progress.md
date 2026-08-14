@@ -100,35 +100,34 @@ These shaped how the setup was done and will apply again next session.
   end. **No GHCR work was needed**: the pattern doc says packages are private by
   default, but one pushed with `GITHUB_TOKEN` inherits the repo's visibility, and
   this repo is public. Verified by an anonymous pull:
+
   ```sh
   TOKEN=$(curl -sS "https://ghcr.io/token?scope=repository:glynl/foodeals:pull&service=ghcr.io" \
     | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
   curl -sS -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $TOKEN" \
     https://ghcr.io/v2/glynl/foodeals/manifests/latest   # 200 = public
   ```
+
   Verified live at `https://foodeals.glynlewington.com`: `GET /health` returns
   `{"status":"ok"}`, `GET /deals` returns all four deals, HTTP redirects `308` to
   HTTPS, and the certificate is `issuer=C=US, O=Let's Encrypt, CN=YR2` for
   `CN=foodeals.glynlewington.com`, valid 14 Aug - 12 Nov 2026.
 
-## Remaining
-
-### Delete the deploy key from the box
-
-Now that a deploy has verifiably worked:
-
-```sh
-rm -f ~/.ssh/deploy_key ~/.ssh/deploy_key.pub
-```
-
-Doing it earlier is a trap: GitHub secrets are write-only, so if the pasted
-`SSH_KEY` turns out to be truncated there's nothing left to compare against and
-the only fix is a fresh keypair. The box keeps the **public** half in
-`~/.ssh/authorized_keys`, which is what actually verifies Actions' key; it never
-needs the private half.
-
-Also outstanding: `chmod 600 /opt/projects/foodeals/.env` (the line was dropped
-when step 9 was pasted, so it's still `644`).
+- **Tidy-up.** `~/.ssh/deploy_key*` deleted from the box and
+  `/opt/projects/foodeals/.env` set to `600`. The deploy key was left in place
+  until a deploy had verifiably worked, deliberately: GitHub secrets are
+  write-only, so had the pasted `SSH_KEY` been truncated there would have been
+  nothing left to compare it against and the only fix would be a fresh keypair.
+  The box keeps the **public** half in `~/.ssh/authorized_keys`, which is what
+  verifies Actions' key; it never needs the private half.
+- **Hardening after the first races.** `deploy.yml` gained `set -e`,
+  `concurrency` (queue runs, don't cancel) and `paths-ignore` for `**.md`,
+  `docs/**` and `openspec/**`. All three came from failures observed here, not
+  from the pattern doc. The run for `430728d` was green, and run status is
+  checkable without `gh` or a token because the repo is public:
+  ```sh
+  curl -sS "https://api.github.com/repos/GlynL/foodeals/actions/runs?per_page=1"
+  ```
 
 ## Gotchas hit (worth keeping)
 
