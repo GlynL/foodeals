@@ -23,7 +23,7 @@ and discovery features grown without changing the core.
 - **Deploy pipeline** — `docker-compose.yml` (Traefik labels) and
   `.github/workflows/deploy.yml` (build → push to GHCR → SSH deploy), per
   `docs/deployment.md`'s templates. Serving at `foodeals.glynlewington.com`;
-  the box setup log lives in `docs/deployment-progress.md`. Deploys are
+  the box, runbook and gotchas are in `docs/deployment.md`. Deploys are
   serialised (`concurrency`), skipped for docs-only pushes (`paths-ignore`),
   and prune dangling images afterwards.
 
