@@ -116,8 +116,8 @@ If the user mentions a change or you detect one is relevant:
    - Read existing files from `artifactPaths.<artifact>.existingOutputPaths`.
 
 2. **Reference them naturally in conversation**
-   - "Your design mentions using Redis, but we just realized SQLite fits better..."
-   - "The proposal scopes this to premium users, but we're now thinking everyone..."
+   - "Your plan mentions using Redis, but we just realized SQLite fits better..."
+   - "The plan scopes this to premium users, but we're now thinking everyone..."
 
 3. **Offer to capture when decisions are made**
 
@@ -125,15 +125,15 @@ If the user mentions a change or you detect one is relevant:
     |----------------------------|--------------------------------|
     | New requirement discovered | `specs/<capability>/spec.md` |
     | Requirement changed        | `specs/<capability>/spec.md` |
-    | Design decision made       | `design.md`                  |
-    | Scope changed              | `proposal.md`                |
+    | Design decision made       | `plan.md`                     |
+    | Scope changed              | `plan.md`                     |
     | New work identified        | `tasks.md`                   |
     | Assumption invalidated     | Relevant artifact              |
 
    Example offers:
-   - "That's a design decision. Capture it in design.md?"
+   - "That's a design decision. Capture it in plan.md?"
    - "This is a new requirement. Add it to specs?"
-   - "This changes scope. Update the proposal?"
+   - "This changes scope. Update the plan?"
 
 4. **The user decides** - Offer and move on. Don't pressure. Don't auto-capture.
 
@@ -154,8 +154,8 @@ If the user mentions a change or you detect one is relevant:
 
 There's no required ending. Discovery might:
 
-- **Flow into a proposal**: "Ready to start? I can create a change proposal."
-- **Result in artifact updates**: "Updated design.md with these decisions"
+- **Flow into a plan**: "Ready to start? I can create a change plan."
+- **Result in artifact updates**: "Updated plan.md with these decisions"
 - **Just provide clarity**: User has what they need, moves on
 - **Continue later**: "We can pick this up anytime"
 
