@@ -17,4 +17,23 @@ describe('foodeals built binary', () => {
     expect(output).toMatch(/\d+ deals?/);
     expect(output).toContain('https');
   });
+
+  it('narrows the catalogue with --day', () => {
+    const output = execFileSync('node', ['dist/cli/index.js', '--day', 'Wed'], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+
+    expect(output).toContain('Half-price pizza');
+    expect(output).not.toContain('Bottomless brunch');
+  });
+
+  it('fails loudly on an unrecognised --day value', () => {
+    expect(() =>
+      execFileSync('node', ['dist/cli/index.js', '--day', 'Funday'], {
+        cwd: root,
+        encoding: 'utf8',
+      }),
+    ).toThrow();
+  });
 });

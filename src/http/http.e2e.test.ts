@@ -53,4 +53,18 @@ describe('foodeals HTTP server', () => {
 
     expect(response.status).toBe(200);
   });
+
+  it('narrows the catalogue with a day query parameter', async () => {
+    const response = await fetch(`http://localhost:${port}/deals?day=Wed`);
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.every((deal: { days: string[] }) => deal.days.includes('Wed'))).toBe(true);
+  });
+
+  it('responds 400 for an unrecognised day value', async () => {
+    const response = await fetch(`http://localhost:${port}/deals?day=Funday`);
+
+    expect(response.status).toBe(400);
+  });
 });

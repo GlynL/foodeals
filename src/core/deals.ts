@@ -1,11 +1,20 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { DealsSchema, type Deal } from './deal.js';
+import { DaySchema, DealsSchema, type Day, type Deal } from './deal.js';
 
 // Resolved against the current working directory, so callers must run from the project root.
 export const DEFAULT_DEALS_PATH = resolve('data/deals.json');
 
-export function loadDeals(filePath: string = DEFAULT_DEALS_PATH): Deal[] {
+export function loadDeals(filePath: string = DEFAULT_DEALS_PATH, day?: Day): Deal[] {
+  // Enforced here, not just by callers' own pre-validation, so a caller that
+  // bypasses the type system never gets a silent "no matches" for a typo.
+  if (day !== undefined) {
+    const dayResult = DaySchema.safeParse(day);
+    if (!dayResult.success) {
+      throw new Error(`Invalid day filter: ${dayResult.error.issues[0]?.message}`);
+    }
+  }
+
   let raw: string;
   try {
     raw = readFileSync(filePath, 'utf8');
@@ -29,11 +38,11 @@ export function loadDeals(filePath: string = DEFAULT_DEALS_PATH): Deal[] {
     const lines = result.error.issues.map((issue) => `  - ${locate(issue, json)}`).join('\n');
     throw new Error(`Deals file at ${filePath} is invalid:\n${lines}`);
   }
-  return result.data;
+  return day === undefined ? result.data : result.data.filter((deal) => deal.days.includes(day));
 }
 
-export function listDeals(): Deal[] {
-  return loadDeals();
+export function listDeals(day?: Day): Deal[] {
+  return loadDeals(DEFAULT_DEALS_PATH, day);
 }
 
 // Formats one issue as: index N ("title") → "field": message

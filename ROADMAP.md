@@ -26,13 +26,15 @@ and discovery features grown without changing the core.
   the box, runbook and gotchas are in `docs/deployment.md`. Deploys are
   serialised (`concurrency`), skipped for docs-only pushes (`paths-ignore`),
   and prune dangling images afterwards.
+- **Day-of-week filtering** — `listDeals()` takes an optional day; the CLI's
+  `--day <name>` and the HTTP API's `?day=<name>` reuse it unchanged. An
+  unrecognised day is rejected loudly (CLI: non-zero exit; HTTP: `400`) rather
+  than treated as no match. First use of the `days` field for discovery.
 
 ## Next
 
 ## Later
 
-- **Day-of-week filtering** — "what's on today?" / filter by a given day. First use
-  of the `days` field for discovery.
 - **Web surface ("C")** — browse deals in a browser.
 - **Write behaviours** — add / remove / edit deals, once a surface needs to write
   without hand-editing the JSON file.

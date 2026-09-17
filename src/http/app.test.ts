@@ -9,10 +9,10 @@ const sample: Deal = {
   days: ['Mon', 'Tue'],
 };
 
-const listDeals = vi.fn<() => Deal[]>();
+const listDeals = vi.fn<(day?: string) => Deal[]>();
 
 vi.mock('../core/deals.js', () => ({
-  listDeals: () => listDeals(),
+  listDeals: (day?: string) => listDeals(day),
 }));
 
 afterEach(() => {
@@ -47,6 +47,40 @@ describe('GET /deals', () => {
     expect(body).toEqual({ error: 'Internal server error' });
     expect(response.body).not.toContain('/secret/path');
     expect(response.body).not.toContain('venue');
+  });
+
+  it('passes a valid day query param through to listDeals()', async () => {
+    listDeals.mockReturnValue([sample]);
+    const { buildApp } = await import('./app.js');
+    const app = buildApp();
+
+    const response = await app.inject({ method: 'GET', url: '/deals?day=Wed' });
+
+    expect(response.statusCode).toBe(200);
+    expect(listDeals).toHaveBeenCalledWith('Wed');
+    expect(response.json()).toEqual([sample]);
+  });
+
+  it('responds 400 for an unrecognised day value without calling listDeals()', async () => {
+    const { buildApp } = await import('./app.js');
+    const app = buildApp();
+
+    const response = await app.inject({ method: 'GET', url: '/deals?day=Funday' });
+
+    expect(response.statusCode).toBe(400);
+    expect(listDeals).not.toHaveBeenCalled();
+    const body = response.json();
+    expect(body).toHaveProperty('error');
+  });
+
+  it('responds 400 for a repeated day query param without calling listDeals()', async () => {
+    const { buildApp } = await import('./app.js');
+    const app = buildApp();
+
+    const response = await app.inject({ method: 'GET', url: '/deals?day=Wed&day=Fri' });
+
+    expect(response.statusCode).toBe(400);
+    expect(listDeals).not.toHaveBeenCalled();
   });
 });
 

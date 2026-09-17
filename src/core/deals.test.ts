@@ -1,6 +1,7 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { DaySchema, type Day } from './deal.js';
 import { listDeals, loadDeals } from './deals.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -65,11 +66,45 @@ describe('loadDeals', () => {
     const problems = message.split('\n').filter((line) => line.trim().startsWith('- '));
     expect(problems.length).toBeGreaterThan(1);
   });
+
+  it('narrows to deals valid on a given day', () => {
+    const deals = loadDeals(fixture('valid.json'), 'Fri');
+    expect(deals).toHaveLength(1);
+    expect(deals[0]?.title).toBe('Half-price pizza');
+  });
+
+  it('returns an empty result for a valid day with no matching deals', () => {
+    expect(loadDeals(fixture('valid.json'), 'Tue')).toEqual([]);
+  });
+
+  it('rejects an unrecognised day filter, even if the type system is bypassed', () => {
+    // A caller that skips its own DaySchema check (or a future third surface
+    // that forwards raw input) must not get a silent empty result back.
+    expect(() => loadDeals(fixture('valid.json'), 'Funday' as Day)).toThrow(/Funday/);
+  });
 });
 
 describe('listDeals', () => {
   it('loads the default deals file without error', () => {
     const deals = listDeals();
     expect(deals.length).toBeGreaterThan(0);
+  });
+
+  it('narrows the default catalogue by day', () => {
+    const deals = listDeals('Wed');
+    expect(deals.map((deal) => deal.title).sort()).toEqual([
+      'Free coffee refill',
+      'Half-price pizza',
+    ]);
+  });
+});
+
+describe('DaySchema', () => {
+  it('accepts a recognised day name', () => {
+    expect(DaySchema.safeParse('Wed').success).toBe(true);
+  });
+
+  it('rejects an unrecognised day name', () => {
+    expect(DaySchema.safeParse('Funday').success).toBe(false);
   });
 });
