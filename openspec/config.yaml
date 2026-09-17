@@ -1,4 +1,4 @@
-schema: spec-driven
+schema: lean
 
 context: |
   Project: foodeals — a curated food-deals aggregator. Deals are hand-maintained
@@ -26,8 +26,8 @@ context: |
 # Add custom rules for specific artifacts.
 # Example:
 #   rules:
-#     proposal:
-#       - Keep proposals under 500 words
+#     plan:
+#       - Keep plans under 500 words
 #       - Always include a "Non-goals" section
 #     tasks:
 #       - Break tasks into chunks of max 2 hours
