@@ -8,7 +8,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string): string => join(here, '__fixtures__', name);
 
 describe('loadDeals', () => {
-  it('returns every deal with all fields (6.1)', () => {
+  it('returns every deal with all fields', () => {
     const deals = loadDeals(fixture('valid.json'));
 
     expect(deals).toHaveLength(3);
@@ -21,23 +21,23 @@ describe('loadDeals', () => {
     });
   });
 
-  it('returns an empty result for an empty catalogue, with no error (6.2)', () => {
+  it('returns an empty result for an empty catalogue, with no error', () => {
     expect(loadDeals(fixture('empty.json'))).toEqual([]);
   });
 
-  it('aborts with a clear error when a required field is missing (6.3)', () => {
+  it('aborts with a clear error when a required field is missing', () => {
     expect(() => loadDeals(fixture('missing-venue.json'))).toThrow(/venue/);
   });
 
-  it('aborts with a clear error on an unrecognised day (6.4)', () => {
+  it('aborts with a clear error on an unrecognised day', () => {
     expect(() => loadDeals(fixture('invalid-day.json'))).toThrow(/Funday/);
   });
 
-  it('aborts with a clear parse error on malformed JSON (6.5)', () => {
+  it('aborts with a clear parse error on malformed JSON', () => {
     expect(() => loadDeals(fixture('malformed.json'))).toThrow(/not valid JSON/i);
   });
 
-  it('returns deals for every day regardless of the current day (6.6)', () => {
+  it('returns deals for every day regardless of the current day', () => {
     const deals = loadDeals(fixture('valid.json'));
     const days = new Set(deals.flatMap((deal) => deal.days));
 

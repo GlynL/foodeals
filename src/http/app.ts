@@ -9,6 +9,10 @@ import { z } from 'zod';
 import { DaySchema, DealsSchema } from '../core/deal.js';
 import { listDeals } from '../core/deals.js';
 
+export function resolvePort(env: NodeJS.ProcessEnv): number {
+  return Number(env.PORT ?? 3000);
+}
+
 export function buildApp() {
   const app = Fastify().withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);

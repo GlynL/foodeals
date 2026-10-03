@@ -1,7 +1,7 @@
 # foodeals
 
 A curated food-deals aggregator. Deals are hand-maintained in a single JSON file
-and read for discovery. This is a learning project for the OpenSpec workflow.
+and read for discovery.
 
 The project is built as one surface-free **core** (the deal model plus
 load/validate/list logic) with **surfaces** layered on top: a command-line tool

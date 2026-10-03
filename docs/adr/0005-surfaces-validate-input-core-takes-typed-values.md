@@ -1,0 +1,3 @@
+# Surfaces validate raw input; the core takes typed values
+
+User input such as a day filter is validated in each surface, before the core is called, using the core's exported schema (`DaySchema`). The core's API takes an already-typed `Day`, never a raw string. This keeps transport-specific failure handling (CLI exit codes, HTTP `400`) in the surface that understands it, while sharing one definition of what a valid day is so the surfaces can't drift from the core. The core re-checks the day at runtime as a backstop, so a caller that bypasses the type system gets a loud error rather than a silent empty result.

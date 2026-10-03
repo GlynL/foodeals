@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A curated food-deals aggregator (learning project for the OpenSpec workflow).",
+  "description": "A curated food-deals aggregator.",
   "engines": {
     "node": ">=22"
   },

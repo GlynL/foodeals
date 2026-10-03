@@ -29,6 +29,7 @@ describe('GET /deals', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual([sample]);
+    expect(listDeals).toHaveBeenCalledWith(undefined);
   });
 
   it('responds 500 with a generic body when listDeals() throws', async () => {
@@ -93,5 +94,17 @@ describe('GET /health', () => {
 
     expect(response.statusCode).toBe(200);
     expect(listDeals).not.toHaveBeenCalled();
+  });
+});
+
+describe('resolvePort', () => {
+  it('defaults to 3000 when PORT is unset', async () => {
+    const { resolvePort } = await import('./app.js');
+    expect(resolvePort({})).toBe(3000);
+  });
+
+  it('uses PORT when set', async () => {
+    const { resolvePort } = await import('./app.js');
+    expect(resolvePort({ PORT: '8080' })).toBe(8080);
   });
 });

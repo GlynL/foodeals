@@ -1,7 +1,6 @@
 # foodeals — roadmap
 
-Rough plan for what's next. Each item becomes an OpenSpec change when picked up
-(propose → apply → sync → archive). Order is a guide, not a commitment.
+Rough plan for what's next. Order is a guide, not a commitment.
 
 The through-line: one surface-free core, with surfaces added on top over time
 and discovery features grown without changing the core.

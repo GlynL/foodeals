@@ -12,7 +12,7 @@ const deal = (over: Partial<Deal> = {}): Deal => ({
 });
 
 describe('formatDeals', () => {
-  it('includes every field of a deal (4.1)', () => {
+  it('includes every field of a deal', () => {
     const out = formatDeals([deal()]);
 
     expect(out).toContain('Half-price pizza');

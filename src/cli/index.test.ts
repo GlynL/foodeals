@@ -17,13 +17,23 @@ function capture() {
 }
 
 describe('run', () => {
-  it('prints the deals and returns 0 on success (4.2)', () => {
+  it('prints the deals and returns 0 on success', () => {
     const { out, err, io } = capture();
 
     const code = run({ list: () => [sample], ...io }, []);
 
     expect(code).toBe(0);
     expect(out.join('\n')).toContain('2-for-1 burgers');
+    expect(err).toEqual([]);
+  });
+
+  it('reports an empty catalogue on out and returns 0', () => {
+    const { out, err, io } = capture();
+
+    const code = run({ list: () => [], ...io }, []);
+
+    expect(code).toBe(0);
+    expect(out.join('\n')).toMatch(/no deals/i);
     expect(err).toEqual([]);
   });
 
