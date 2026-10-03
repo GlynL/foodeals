@@ -90,12 +90,11 @@ describe('listDeals', () => {
     expect(deals.length).toBeGreaterThan(0);
   });
 
+  // Asserts a property rather than specific titles: the default file is the
+  // operator's live catalogue and changes whenever deals are edited.
   it('narrows the default catalogue by day', () => {
-    const deals = listDeals('Wed');
-    expect(deals.map((deal) => deal.title).sort()).toEqual([
-      'Free coffee refill',
-      'Half-price pizza',
-    ]);
+    const expected = listDeals().filter((deal) => deal.days.includes('Wed'));
+    expect(listDeals('Wed')).toEqual(expected);
   });
 });
 

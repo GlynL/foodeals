@@ -24,8 +24,10 @@ describe('foodeals built binary', () => {
       encoding: 'utf8',
     });
 
-    expect(output).toContain('Half-price pizza');
-    expect(output).not.toContain('Bottomless brunch');
+    // Runs against the live catalogue, so check every printed deal's days line
+    // (third line of each block, after the count header) rather than titles.
+    const blocks = output.trim().split('\n\n').slice(1);
+    expect(blocks.every((block) => block.split('\n')[2]?.includes('Wed'))).toBe(true);
   });
 
   it('fails loudly on an unrecognised --day value', () => {
