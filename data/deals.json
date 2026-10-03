@@ -1,30 +1,51 @@
 [
   {
-    "title": "2-for-1 burgers",
-    "venue": "The Grill House",
-    "discount": "2-for-1 on all burgers",
-    "location": "https://www.google.com/maps/search/?api=1&query=The+Grill+House",
-    "days": ["Mon", "Tue"]
+    "title": "50% off pizza",
+    "venue": "Made in Puglia Tooting",
+    "discount": "50%",
+    "location": "https://share.google/H2h7qPUu2svPhX0Wc",
+    "days": ["Tue"]
   },
   {
-    "title": "Half-price pizza",
-    "venue": "Napoli",
-    "discount": "50% off mains",
-    "location": "https://www.google.com/maps/search/?api=1&query=Napoli+Pizzeria",
-    "days": ["Wed"]
+    "title": "AYCE pizza",
+    "venue": "Made in Puglia Tooting",
+    "discount": "£20 AYCE pizza 90 mins",
+    "location": "https://share.google/H2h7qPUu2svPhX0Wc",
+    "days": ["Tue"]
   },
   {
-    "title": "Bottomless brunch",
-    "venue": "The Copper Spoon",
-    "discount": "£25 bottomless brunch",
-    "location": "https://www.google.com/maps/search/?api=1&query=The+Copper+Spoon",
-    "days": ["Sat", "Sun"]
+    "title": "2 for 1 cocktails",
+    "venue": "Made in Puglia Tooting",
+    "discount": "2 for 1 cocktails 5-7",
+    "location": "https://share.google/H2h7qPUu2svPhX0Wc",
+    "days": ["Thur"]
   },
   {
-    "title": "Free coffee refill",
-    "venue": "Bean There",
-    "discount": "Free refill with any pastry",
-    "location": "https://www.google.com/maps/search/?api=1&query=Bean+There+Cafe",
-    "days": ["Mon", "Tue", "Wed", "Thu", "Fri"]
+    "title": "£15 Steak + Salad",
+    "venue": "Barra 10",
+    "discount": "£15",
+    "location": "https://maps.app.goo.gl/4z6bfg5aBE7bj3Hb7",
+    "days": ["Tue", "Wed"]
+  },
+  {
+    "title": "£15 AYCE Ribs",
+    "venue": "Dell Boyz",
+    "discount": "£15 AYCE ribs",
+    "location": "https://maps.app.goo.gl/HXJZf7q1MP4ppAUAA",
+    "days": ["Tue"]
+  },
+  {
+    "title": "3 for £9 Tacos",
+    "venue": "Guacamoles",
+    "discount": "3 for £9",
+    "location": "https://maps.app.goo.gl/oyzC6UpmCM66za6S6",
+    "days": ["Tue"]
+  },
+  {
+    "title": "3 for £9 Tacos",
+    "venue": "Holy Guacamoly",
+    "discount": "3 for £9",
+    "location": "https://maps.app.goo.gl/Lhn3RsAyRfqNKDpTA",
+    "days": ["Tue"]
   }
 ]
